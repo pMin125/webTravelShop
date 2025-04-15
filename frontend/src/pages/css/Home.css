@@ -1,0 +1,260 @@
+/* 배너 */
+.main-banner-wrapper {
+    width: 100%;
+    overflow: hidden;
+}
+
+.main-banner-img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+}
+
+/* 카드 이미지 */
+.card-img-top {
+    height: 400px;
+    object-fit: cover;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+/* 카드 전체 */
+.card {
+    background-color: #fff;
+    border: none;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* 카드 내부 */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.2rem;
+}
+
+/* 제목 */
+.card-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+/* 본문 텍스트 */
+.card-text {
+    color: #666;
+    font-size: 0.95rem;
+    white-space: pre-line;
+    margin-top: 0.5rem;
+}
+
+/* 서브 텍스트 */
+.text-muted {
+    color: #666 !important;
+    font-size: 0.9rem;
+}
+
+/* 태그 뱃지 */
+.tag-badge {
+    background-color: rgb(238, 154, 154) !important;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    margin: 0 6px 6px 0;
+    border: none;
+}
+
+/* 참여 버튼 */
+.btn-outline-primary {
+    border: none;
+    background-color: rgb(238, 154, 154);
+    color: white;
+    font-weight: 500;
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-primary:hover {
+    background-color: rgb(212, 107, 107);
+}
+
+/* 기존 카드 줄 */
+.popular-scroll-container {
+    display: flex;
+    gap: 1rem;
+    transition: scroll 0.3s ease;
+}
+
+/* 🎯 이게 핵심!! → 4개만 보이게 */
+.popular-scroll-viewport {
+    width: 1000px; /* 카드 250px × 4개 */
+    overflow-x: hidden;
+}
+
+/* 개별 카드 스타일 (예시) */
+.popular-card {
+    width: 250px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-right: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.popular-card:hover {
+    transform: translateY(-5px);
+}
+
+/* 화살표 버튼 스타일 */
+.scroll-arrow {
+    font-size: 2rem;
+    cursor: pointer;
+    user-select: none;
+    margin: 0 10px;
+    color: #333;
+}
+.scroll-arrow:hover {
+    color: #007bff;
+}
+
+/* 화살표 버튼 전체 스타일 */
+.slick-prev,
+.slick-next {
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+}
+
+/* 화살표 아이콘 스타일 */
+.slick-prev::before {
+    content: '◀';
+    font-size: 30px;
+    color: #333;
+}
+
+.slick-next::before {
+    content: '▶';
+    font-size: 30px;
+    color: #333;
+}
+
+.tag-button {
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    color: #333;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease-in-out;
+}
+
+.tag-button.active {
+    background-color: rgb(238, 154, 154);
+    color: white;
+    border-color: rgb(238, 154, 154);
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 18px;
+}
+
+.description {
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* 최대 줄 수 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    line-height: 1.4; /* 줄간격도 적절히 */
+    max-height: 6em; /* line-height * 2줄 */
+}
+
+/*signUp Start*/
+
+.signup-form {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.signup-form h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+.signup-form form > div {
+    margin-bottom: 15px;
+}
+
+.signup-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #555;
+}
+
+.signup-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.signup-form input:focus {
+    border-color: #4A90E2;
+    outline: none;
+}
+
+.signup-form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #4A90E2;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.signup-form button:hover {
+    background-color: #357ABD;
+}
+
+.signup-form p {
+    text-align: center;
+    font-size: 14px;
+}
+
+/*signUp End*/

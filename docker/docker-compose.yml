@@ -30,6 +30,7 @@ services:
   spring-backend:
     build:
       context: ../backend
+      dockerfile: Dockerfile
     container_name: spring-backend
     restart: always
     ports:
@@ -43,6 +44,7 @@ services:
   spring-backend2:
     build:
       context: ../backend
+      dockerfile: Dockerfile
     container_name: spring-backend2
     ports:
       - "8081:8080"  # (테스트용 외부 확인용 포트, 안 써도 OK)
