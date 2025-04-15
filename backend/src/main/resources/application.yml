@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: toyProject
+
+  datasource:
+    url: jdbc:mysql://docker-mysql-db-1:3306/toy-db
+    username: toy-user
+    password: toy1
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  security:
+    user:
+      name: user
+      password: 1234
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+      jedis:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 1
+          max-wait: -1ms
+
+#  mvc:
+#    pathmatch:
+#      matching-strategy: ant_path_matcher
+
+logging:
+  level:
+    org.springframework.web.socket: DEBUG
+    org.springframework.messaging: DEBUG
+
+server:
+  port: 8080
+  # ?? ?? (??)
+#logging:
+#  level:
+#    org.hibernate.SQL: debug
+#    org.hibernate.type.descriptor.sql: trace
