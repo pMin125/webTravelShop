@@ -21,7 +21,7 @@ public class TestSocketController {
     public String testNotify(@AuthenticationPrincipal UserDetails user) {
         String username = user.getUsername();
         Map<String, Object> payload = new HashMap<>();
-        payload.put("message", "알림 테스트: 잘 연결됐어요!");
+        payload.put("message", "알림 테스트: 연결됐어요!");
 
         messagingTemplate.convertAndSendToUser(username, "/queue/notify", payload);
 

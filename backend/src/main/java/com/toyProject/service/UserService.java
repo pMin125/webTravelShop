@@ -1,14 +1,16 @@
 package com.toyProject.service;
 
 
-import com.toyProject.dto.SignUpUser;
-import com.toyProject.entity.UserEntity;
-import com.toyProject.repository.UserEntityRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.toyProject.dto.SignUpUser;
+import com.toyProject.entity.UserEntity;
+import com.toyProject.repository.UserEntityRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service

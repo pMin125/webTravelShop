@@ -15,7 +15,7 @@ export const UserProvider = ({ children }) => {
     useEffect(() => {
         const token = localStorage.getItem("onion_token");
         if (!token) {
-            console.log("🚫 토큰 없음 → /auth/me 요청 안 보냄");
+            console.log("토큰 없음 → /auth/me 요청 안 보냄");
             setIsLogin(false);
             setLoginChecked(true);
             return;

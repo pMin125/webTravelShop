@@ -15,10 +15,7 @@ function Header() {
     return (
         <header className="bg-light p-3 mb-4 border-bottom shadow-sm">
             <div className="container d-flex justify-content-between align-items-center">
-                {/* 로고 또는 제목 */}
                 <h3 className="m-0">🛍️ MyShop</h3>
-
-                {/* 네비게이션 */}
                 <nav>
                     <Link to="/" className="btn btn-outline-primary me-2">홈</Link>
                     <Link to="/signup" className="btn btn-outline-primary me-2">회원가입</Link>

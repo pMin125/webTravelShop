@@ -13,8 +13,8 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;  // 예: ROLE_USER, ROLE_ADMIN
+    private String name;
 
-    @ManyToMany(mappedBy = "roles")
-    private Set<UserEntity> users;
+    // @ManyToMany(mappedBy = "roles")
+    // private Set<UserEntity> users;
 }

@@ -26,13 +26,11 @@ function HomePage() {
             : productList.filter(product => product.tagNames.includes(selectedTag));
 
     useEffect(() => {
-        // 전체 상품
         fetch(`${API_BASE}/product/productList`)
             .then(res => res.json())
             .then(setProductList)
             .catch(err => console.error('상품 목록 불러오기 실패:', err));
 
-        // 인기 상품
         fetch(`${API_BASE}/product/popular`)
             .then(res => res.json())
             .then(setPopularList)
@@ -53,7 +51,7 @@ function HomePage() {
     }, [loginChecked, isLogin, API_BASE]);
 
     if (!loginChecked) {
-        return <div className="text-center py-5">⏳ 로그인 확인 중...</div>;
+        return <div className="text-center py-5">로그인 확인 중...</div>;
     }
 
     return (

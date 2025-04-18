@@ -1,17 +1,19 @@
 package com.toyProject.config;
 
-import com.siot.IamportRestClient.IamportClient;
-import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.concurrent.TimeUnit;
+import com.siot.IamportRestClient.IamportClient;
 
 @Configuration
 public class AppConfig {
 
-    String apiKey = "5545788037464428";
-    String secretKey = "gqtWnK6jPl9ZgDzhVH3gti7yKhAFefVkfYl1aIXE0aPRyhlHsJGYzW1L4hoXKnATlWA8Bp1BSUdVdSIy";
+    @Value("${iamport.api-key}")
+    private String apiKey;
+
+    @Value("${iamport.secret-key}")
+    private String secretKey;
 
     @Bean
     public IamportClient iamportClient() {

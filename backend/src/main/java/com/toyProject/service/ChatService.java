@@ -35,7 +35,6 @@ public class ChatService {
     private String serverId;
     public void sendMessage(ChatMessage chatMessage) {
         log.info("[{}] 서버에서 메시지 전송: {}", serverId, chatMessage.getMessage());
-        // DB 저장
         Chat chat = Chat.builder()
                 .roomId(chatMessage.getRoomId())
                 .sender(chatMessage.getSender())
@@ -62,13 +61,6 @@ public class ChatService {
                     chatMessage
             );
         }
-//        } else {
-//            // 일반 채팅은 채팅방으로
-//            messagingTemplate.convertAndSend(
-//                    "/sub/chat/" + chatMessage.getRoomId(),
-//                    chatMessage
-//            );
-//        }
     }
 
     public List<Chat> getMessagesByRoomId(String roomId) {

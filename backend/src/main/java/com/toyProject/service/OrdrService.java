@@ -1,28 +1,51 @@
 package com.toyProject.service;
 
-import com.siot.IamportRestClient.IamportClient;
-import com.siot.IamportRestClient.exception.IamportResponseException;
-import com.siot.IamportRestClient.request.CancelData;
-import com.siot.IamportRestClient.response.IamportResponse;
-import com.toyProject.dto.PaymentCallbackDTO;
-import com.toyProject.dto.Request.OrderRequest;
-import com.toyProject.entity.*;
-import com.toyProject.exception.ParticipationException;
-import com.toyProject.repository.*;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.toyProject.exception.ErrorCode.ORDER_NOT_FOUND;
+import static com.toyProject.exception.ErrorCode.PARTICIPATION_NOT_FOUND;
+import static com.toyProject.exception.ErrorCode.PAYMENT_NOT_FOUND;
+import static com.toyProject.exception.ErrorCode.PRODUCT_NOT_FOUND;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.util.*;
+import com.siot.IamportRestClient.IamportClient;
+import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.request.CancelData;
+import com.siot.IamportRestClient.response.IamportResponse;
+import com.toyProject.dto.PaymentCallbackDTO;
+import com.toyProject.dto.Request.OrderRequest;
+import com.toyProject.entity.Cart;
+import com.toyProject.entity.CartItem;
+import com.toyProject.entity.Order;
+import com.toyProject.entity.OrderItem;
+import com.toyProject.entity.Participation;
+import com.toyProject.entity.Payment;
+import com.toyProject.entity.Product;
+import com.toyProject.entity.UserEntity;
+import com.toyProject.exception.ParticipationException;
+import com.toyProject.repository.CartRepository;
+import com.toyProject.repository.OrderRepository;
+import com.toyProject.repository.ParticipationRepository;
+import com.toyProject.repository.PaymentRepository;
+import com.toyProject.repository.ProductRepository;
+import com.toyProject.repository.UserEntityRepository;
 
-import static com.toyProject.exception.ErrorCode.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -51,12 +74,11 @@ public class OrdrService {
             UserEntity user = userEntityRepository.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("유저 없음"));
 
-            // 참여 상태 CANCELLED 로 변경
             participationRepository.findActiveParticipationByUserAndProduct(user, product)
                     .ifPresent(participation -> {
                         participation.setStatus(Participation.ParticipationStatus.CANCELLED);
                         participationRepository.save(participation);
-                        System.out.print("❌ 결제 미완료로 참여 취소됨: {}"+ username);
+                        System.out.print("결제 미완료로 참여 취소됨: {}"+ username);
                     });
 
             // Redis에서 키 삭제
@@ -74,10 +96,8 @@ public class OrdrService {
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new IllegalArgumentException("장바구니가 비어있습니다."));
 
-        // 2. 선택된 상품들에 대해 기존의 `PENDING` 상태 주문을 취소
         List<Long> selectedProductIds = orderRequest.getSelectedProductIds();
         for (Long productId : selectedProductIds) {
-            // 해당 상품에 대한 기존 `PENDING` 주문을 취소
             Optional<Order> existingOrder = orderRepository.findTopOrderByUserAndProductAndStatus(
                     user, productRepository.findById(productId).orElseThrow(() -> new RuntimeException("상품이 존재하지 않습니다.")),
                     Order.OrderStatus.PENDING
@@ -85,10 +105,10 @@ public class OrdrService {
 
             if (existingOrder.isPresent()) {
                 Order pendingOrder = existingOrder.get();
-                pendingOrder.setOrderStatus(Order.OrderStatus.CANCELED);  // 기존 주문 취소
+                pendingOrder.setOrderStatus(Order.OrderStatus.CANCELED);
                 Payment payment = pendingOrder.getPayment();
                 if (payment != null) {
-                    payment.setStatus(Payment.PaymentStatus.CANCELLED);  // 결제도 취소 상태로 변경
+                    payment.setStatus(Payment.PaymentStatus.CANCELLED);
                     paymentRepository.save(payment);
                 }
                 orderRepository.save(pendingOrder);
@@ -141,7 +161,7 @@ public class OrdrService {
         );
 
         if (existingOrder.isPresent()) {
-            return existingOrder.get(); // 기존 걸 그대로 씀
+            return existingOrder.get();
         }
         Order order = Order.builder()
                 .user(user)
@@ -215,7 +235,6 @@ public class OrdrService {
             throw new ParticipationException(PAYMENT_NOT_FOUND);
         }
 
-        // 1. iamport 결제 취소 요청
         try {
             CancelData cancelData = new CancelData(payment.getPaymentUid(), true);
             iamportClient.cancelPaymentByImpUid(cancelData);
@@ -223,13 +242,11 @@ public class OrdrService {
             throw new RuntimeException("결제 취소 실패", e);
         }
 
-        // 2. 상태 업데이트
         order.setOrderStatus(Order.OrderStatus.CANCELED);
         payment.changePaymentStatus(Payment.PaymentStatus.CANCELLED);
         orderRepository.save(order);
         paymentRepository.save(payment);
 
-        // 3. Participation도 취소
         Participation participation = participationRepository.findActiveParticipationByUserAndProduct(user, product)
                 .orElseThrow(() -> new ParticipationException(PARTICIPATION_NOT_FOUND));
 
@@ -248,7 +265,7 @@ public class OrdrService {
 
         String nextUsername = redisTemplate.opsForList().leftPop(listKey);
         if (nextUsername == null) {
-            log.info("❌ 대기열에 유저 없음");
+            log.info("대기열에 유저 없음");
             return;
         }
 
@@ -264,24 +281,24 @@ public class OrdrService {
         participation.setStatus(Participation.ParticipationStatus.WAITING_PAYMENT);
 
         // 소켓 알림 로그 추가
-        log.info("📢 알림 보낼 유저: {} / 상품: {}", user.getUsername(), productId);
+        log.info("알림 보낼 유저: {} / 상품: {}", user.getUsername(), productId);
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("productId", productId);
         payload.put("message", "대기 순번이 되었습니다! 30분 안에 결제하세요.");
-        payload.put("sender", user.getUsername()); // ✅ 필터용 sender 추가
-        payload.put("type", "WAITING_NOTIFY");     // ✅ 타입도 명시 (선택사항)
+        payload.put("sender", user.getUsername());
+        payload.put("type", "WAITING_NOTIFY");
 
-        log.info("📨 convertAndSend (브로드캐스트) 호출 시작");
+        log.info("convertAndSend (브로드캐스트) 호출 시작");
 
         messagingTemplate.convertAndSend(
-                "/sub/notify/" + productId, // ✅ 방 기반 알림 채널
+                "/sub/notify/" + productId,
                 payload
         );
 
         String ttlKey = "payment:expire:" + productId + ":" + user.getUsername();
         redisTemplate.opsForValue().set(ttlKey, "waiting", Duration.ofMinutes(1));
-        log.info("⏱️ TTL 설정 완료: {}", ttlKey);
+        log.info("⏱TTL 설정 완료: {}", ttlKey);
     }
 
 

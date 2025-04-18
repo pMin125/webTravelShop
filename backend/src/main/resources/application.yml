@@ -1,13 +1,20 @@
 spring:
   application:
     name: toyProject
-
+iamport:
+  api-key: ${IAMPORT_API_KEY}
+  secret-key: ${IAMPORT_SECRET_KEY}
   datasource:
     url: jdbc:mysql://docker-mysql-db-1:3306/toy-db
     username: toy-user
     password: toy1
     driver-class-name: com.mysql.cj.jdbc.Driver
-
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
   security:
     user:
       name: user
@@ -36,6 +43,10 @@ spring:
 #    pathmatch:
 #      matching-strategy: ant_path_matcher
 
+iamport:
+  api-key: ${IAMPORT_API_KEY}
+  secret-key: ${IAMPORT_SECRET_KEY}
+  
 logging:
   level:
     org.springframework.web.socket: DEBUG

@@ -101,10 +101,10 @@ function Cart() {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
-                alert("🎉 결제 완료!");
+                alert("결제 완료!");
                 navigate('/');
             } else {
-                alert("❌ 결제 실패: " + rsp.error_msg);
+                alert("결제 실패: " + rsp.error_msg);
             }
         });
     };

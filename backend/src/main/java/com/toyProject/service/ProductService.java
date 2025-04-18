@@ -1,23 +1,27 @@
 package com.toyProject.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.toyProject.dto.*;
-import com.toyProject.entity.*;
-import com.toyProject.repository.*;
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-
-import org.springframework.beans.factory.annotation.Qualifier;
-import java.time.Duration;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.toyProject.dto.PopularTravelDto;
+import com.toyProject.dto.ProductDto;
+import com.toyProject.entity.Participation;
+import com.toyProject.entity.Product;
+import com.toyProject.entity.Tag;
+import com.toyProject.repository.ParticipationRepository;
+import com.toyProject.repository.ProductRepository;
+import com.toyProject.repository.TagRepository;
+import com.toyProject.repository.TravelQueryRepository;
 
 @Service
 public class ProductService {
@@ -82,19 +86,16 @@ public class ProductService {
         if (json != null) {
             try {
                 List<PopularTravelDto> cached = objectMapper.readValue(json, new TypeReference<>() {});
-                System.out.println("✅ Redis 캐시에서 인기 여행 가져옴");
                 return cached;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        // 캐시에 없으면 DB에서 가져오기
         List<PopularTravelDto> freshData = travelQueryRepository.findPopularTravels(10);
         try {
             String jsonString = objectMapper.writeValueAsString(freshData);
             stringRedisTemplate.opsForValue().set("popular:travel", jsonString);
-            System.out.println("📦 DB 조회 후 캐시 저장 완료");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -105,7 +106,6 @@ public class ProductService {
     public List<ProductDto> productListV2() {
         List<Product> products = productRepository.findAllWithTags();
 
-        // Group by 로 참여 수 미리 가져오기
         List<Object[]> counts = participationRepository.countGroupByProduct(Participation.ParticipationStatus.JOINED);
         Map<Long, Long> joinedCountMap = counts.stream()
                 .collect(Collectors.toMap(

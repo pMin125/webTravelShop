@@ -59,7 +59,7 @@ function ChatRoom({ productId, title, username, show, onHide }) {
                 });
             });
         } catch (err) {
-            console.error("❌ 메시지 불러오기 에러:", err);
+            console.error("메시지 불러오기 에러:", err);
         } finally {
             loadingRef.current = false;
         }
@@ -93,7 +93,7 @@ function ChatRoom({ productId, title, username, show, onHide }) {
         // const client = Stomp.over(socket);
         const socket = new SockJS(WS_BASE); // 예: http://localhost:8080/ws
         console.log(socket);
-        const client = Stomp.over(() => socket); // ✅ 이렇게 factory로 넘김!
+        const client = Stomp.over(() => socket);
         client.debug = () => {};
 
         client.connect({}, () => {

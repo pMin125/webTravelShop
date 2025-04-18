@@ -61,7 +61,7 @@ const PopularSlider = ({ popularList }) => {
                         />
                         <div className="card-body">
                             <h5 className="card-title">{product.title}</h5>
-                            <p>참여 + 대기: {product.participantCount} 명</p>
+                            <p>참여 + 입금대기기: {product.participantCount} 명</p>
                         </div>
                     </div>
                 </div>

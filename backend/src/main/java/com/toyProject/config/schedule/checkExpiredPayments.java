@@ -24,20 +24,20 @@ public class checkExpiredPayments {
 
     @Scheduled(fixedRate = 1000000000)
     public void checkExpiredPayment1s() {
-        log.info("⏰ [Scheduler] checkExpiredPayments 실행됨 - " );
+        log.info("[Scheduler] checkExpiredPayments 실행됨 - " );
 
         Set<String> keys = redisTemplate.keys("payment:expire:*");
         if (keys == null) {
-            log.info("🔍 만료 키 없음");
+            log.info("만료 키 없음");
             return;
         }
 
         for (String key : keys) {
             Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
-            log.info("🔎 확인 중: " + key + " (TTL=" + ttl + ")");
+            log.info("확인 중: " + key + " (TTL=" + ttl + ")");
 
             if (ttl <= 10) {
-                log.info("🔥 TTL 10초 이하 → 조기 만료 처리: {}", key);
+                log.info("TTL 10초 이하 → 조기 만료 처리: {}", key);
                 ordrService.handleExpiredPayment(key);
             }
         }

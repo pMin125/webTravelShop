@@ -1,23 +1,19 @@
 package com.toyProject.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.siot.IamportRestClient.IamportClient;
-import com.siot.IamportRestClient.exception.IamportResponseException;
-import com.siot.IamportRestClient.request.CancelData;
-import com.siot.IamportRestClient.response.IamportResponse;
 import com.toyProject.dto.RequestPayDTO;
-import com.toyProject.entity.*;
-import com.toyProject.dto.PaymentCallbackDTO;
+import com.toyProject.entity.Order;
+import com.toyProject.entity.OrderItem;
+import com.toyProject.entity.Payment;
 import com.toyProject.repository.CartRepository;
 import com.toyProject.repository.OrderRepository;
 import com.toyProject.repository.PaymentRepository;
+
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -64,7 +60,7 @@ public class PaymentService {
         return RequestPayDTO.builder()
                 .buyerName(order.getUser().getUsername())
                 .buyerEmail(order.getUser().getEmail())
-                .buyerAddress("dkdkd")
+                .buyerAddress("address")
                 .paymentPrice(order.getTotalPrice())
                 .itemName(itemName)
                 .orderUid(order.getOrderUid())

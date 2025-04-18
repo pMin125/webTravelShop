@@ -29,7 +29,7 @@ public class ParticipantController {
     public ResponseEntity<?> participate(@PathVariable Long productId, @AuthenticationPrincipal UserEntity user) {
         try {
             Participation.ParticipationStatus status = participationService.participate(user, productId);
-            return ResponseEntity.ok(Map.of("status", status.name())); // ✅ 상태 리턴
+            return ResponseEntity.ok(Map.of("status", status.name()));
         } catch (ParticipationException e) {
             return ResponseEntity.badRequest().body(Map.of(
                     "error", e.getErrorCode().name(),
@@ -88,9 +88,4 @@ public class ParticipantController {
         return ResponseEntity.ok(Map.of("remainingSeconds", ttl));
     }
 
-//    @GetMapping("/status/{productId}")
-//    public ResponseEntity<?> getParticipationStatus(@PathVariable Long productId, @AuthenticationPrincipal UserEntity user) {
-//        String status = participationService.getUserParticipationStatus(productId, user.getUsername());
-//        return ResponseEntity.ok(status);
-//    }
 }

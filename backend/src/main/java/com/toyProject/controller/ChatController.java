@@ -22,17 +22,6 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
 
-//    @MessageMapping("/chat.sendMessage")
-//    @SendTo("/topic/chatroom")
-//    public ChatMessage sendMessage(ChatMessage message) {
-//        return message;
-//    }
-//
-//    @GetMapping("/chat/{roomId}")
-//    public List<Chat> getChatHistory(@PathVariable String roomId) {
-//        return chatService.getMessagesByRoomId(roomId);
-//    }
-
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(ChatMessage message) {
         // DB 저장

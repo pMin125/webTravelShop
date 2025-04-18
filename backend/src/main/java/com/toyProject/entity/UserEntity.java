@@ -55,21 +55,16 @@ public class UserEntity implements UserDetails {
     @Column()
     private LocalDate birthDate;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles;  // UserEntity에 Role 연결 (다대다 관계)
+    // @ManyToMany(fetch = FetchType.LAZY)
+    // @JoinTable(
+    //         name = "user_roles",
+    //         joinColumns = @JoinColumn(name = "user_id"),
+    //         inverseJoinColumns = @JoinColumn(name = "role_id")
+    // )
+    // private Set<Role> roles;  // UserEntity에 Role 연결 (다대다 관계)
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (roles == null) {
             return Collections.emptyList();
-        }
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toList());
     }
 }

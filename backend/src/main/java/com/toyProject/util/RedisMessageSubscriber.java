@@ -15,7 +15,7 @@ public class RedisMessageSubscriber {
     public void handleMessage(String messageJson) {
         try {
             ChatMessage chatMessage = objectMapper.readValue(messageJson, ChatMessage.class);
-            System.out.println("🔥 Redis에서 받은 메시지: " + chatMessage.getMessage());
+            System.out.println("Redis에서 받은 메시지: " + chatMessage.getMessage());
             String roomId = chatMessage.getRoomId();
 
             if ("UPGRADE".equals(chatMessage.getType())) {

@@ -1,6 +1,24 @@
 package com.toyProject.service;
 
-import com.toyProject.dto.ChatMessage;
+import static com.toyProject.entity.Participation.ParticipationStatus.JOINED;
+import static com.toyProject.entity.Participation.ParticipationStatus.WAITING_LIST;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
 import com.toyProject.dto.PopularTravelDto;
 import com.toyProject.entity.Chat;
 import com.toyProject.entity.Participation;
@@ -10,32 +28,9 @@ import com.toyProject.repository.ParticipationRepository;
 import com.toyProject.repository.ProductRepository;
 import com.toyProject.repository.TravelQueryRepository;
 import com.toyProject.repository.UserEntityRepository;
-import com.toyProject.util.DistributedLock;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.toyProject.entity.Participation.ParticipationStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -53,9 +48,8 @@ public class ParticipantService {
     @Async
     public void updateCache() {
         String cacheKey = "popular:travel";
-        redisTemplate.delete(cacheKey);  // 기존 캐시 삭제
+        redisTemplate.delete(cacheKey);
 
-        // 새로운 인기 여행 상품 데이터 가져오기
         List<PopularTravelDto> freshData = travelQueryRepository.findPopularTravels(10);
         redisTemplate.opsForValue().set(cacheKey, freshData.toString(), Duration.ofMinutes(10)); // 새 데이터로 캐시 갱신
         System.out.println("📦 비동기 캐시 갱신 완료");
@@ -89,10 +83,8 @@ public class ParticipantService {
     public Map<String, Object> getSummaryForProduct(Long productId) {
         Map<String, Object> result = new HashMap<>();
 
-        // JOINED 상태 참여자 조회
         List<UserEntity> users = participationRepository.findUsersByProductIdAndStatus(productId, JOINED);
 
-        // 연령대 통계 계산
         Map<String, Long> ageStats = new HashMap<>();
         for (UserEntity user : users) {
             LocalDate birthDate = user.getBirthDate();
@@ -138,7 +130,6 @@ public class ParticipantService {
         Participation participation = participationRepository.findActiveParticipationByUserAndProduct(user, product)
                 .orElseThrow(() -> new RuntimeException("참여 내역이 없습니다."));
 
-        // JOINED 상태면 취소 허용 안 함
         if (participation.getStatus() != WAITING_LIST) {
             throw new RuntimeException("대기 상태가 아닙니다.");
         }
@@ -156,7 +147,6 @@ public class ParticipantService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("상품이 존재하지않습니다."));
 
-        // 1. 참여 중인 사용자 삭제 또는 상태 변경
         Participation participation = participationRepository.findActiveParticipationByUserAndProduct(user, product)
                 .orElseThrow(() -> new RuntimeException("참여 정보가 없습니다."));
 
@@ -164,7 +154,6 @@ public class ParticipantService {
             throw new RuntimeException("참여자가 아닙니다.");
         }
 
-        // participation.setStatus(Participation.Status.CANCELLED);
         participationRepository.delete(participation);
 
         String listKey = "queue:product:" + productId;
@@ -173,7 +162,6 @@ public class ParticipantService {
         String nextUsername = (String)redisTemplate.opsForList().rightPop(listKey); // ← 제일 오래 기다린 사람
 
         if (nextUsername != null) {
-            // 3. DB에서 해당 유저 참여 상태 변경
             UserEntity nextUser = userEntityRepository.findByUsername(nextUsername)
                     .orElseThrow(() -> new RuntimeException("대기자 유저 없음"));
 
@@ -198,9 +186,9 @@ public class ParticipantService {
             log.info("알림유저알림유저");
             Chat message = Chat.builder()
                     .roomId(productId.toString())
-                    .sender("system") // 실제 유저 이름
-                    .message("참여 인원이 변경되었습니다.") // 메시지 내용
-                    .type(Chat.MessageType.UPDATE) // "UPDATE" 타입으로 설정
+                    .sender("system")
+                    .message("참여 인원이 변경되었습니다.")
+                    .type(Chat.MessageType.UPDATE)
                     .build();
 
             messagingTemplate.convertAndSend("/sub/notify/" + productId, message);

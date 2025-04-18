@@ -38,6 +38,3 @@ public class Participation {
         WAITING_LIST // 대기
     }
 }
-// 참여 -> 참여버튼 -> 결제페이지 -> 결제 취소햇을경우 -> 상태값 cancelled 로 변경 -> 결제햇을경우 -> JOINED 로 변경
-
-// 대기 -> 대기버튼 -> 소켓에따른 실시간 알림 -> 30분내입금(상태값 wating_payment) -> 입금 안햇을경우 cancel  -> 다음대기 사람 반복
